@@ -44,3 +44,51 @@ export const Example = () => {
 	)
 }
 ```
+
+With predefined value:
+
+```typescript
+<SelectWrapper>
+	<Select
+			value={options[0]} // Here we setting option that we need
+			onChange={selected => console.log('Selected:', selected)}
+	>
+		<SelectTrigger>
+				{({ selected }: { selected: Option<string> }) => (
+					<span>{selected?.label || 'Choose an option'}</span>
+				)}
+		</SelectTrigger>
+		<SelectContent>
+				{options.map(option => (
+					<SelectOption key={option.value} value={option} className='option'>
+						{selected => <span>{option.label}</span>}
+					</SelectOption>
+				))}
+		</SelectContent>
+	</Select>
+</SelectWrapper>
+```
+
+### Styles
+
+You can customize options with 2 data attributes:
+
+[data-selected] means that this option is selected
+
+[data-hasSelected] means that any option is selected
+
+With that you can style not selected and selected options like this:
+
+```css
+/* This style is for selected option to highlight it */
+.option[data-selected='true'] {
+  background-color: #213547;
+}
+
+/* This style is for not selected option, for example to make them less bright */
+.option[data-selected='false'][data-hasSelected='true'] {
+  color: #fefefe4d;
+}
+```
+
+To you this, you need to give a class to <SelectOption>

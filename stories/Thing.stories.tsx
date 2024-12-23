@@ -1,28 +1,52 @@
-import React from 'react';
-import { Meta, Story } from '@storybook/react';
-import { Thing, Props } from '../src';
-
-const meta: Meta = {
-  title: 'Welcome',
-  component: Thing,
-  argTypes: {
-    children: {
-      control: {
-        type: 'text',
-      },
-    },
-  },
-  parameters: {
-    controls: { expanded: true },
-  },
+import React, { useState } from 'react';
+import { Option } from '../src/types'; // Импорт типов
+import {
+  Select,
+  SelectContent,
+  SelectOption,
+  SelectTrigger,
+  SelectWrapper,
+} from '../src/WrapperSelect';
+import './globals.css';
+export default {
+  title: 'Components/Select',
+  component: SelectWrapper,
 };
-
-export default meta;
-
-const Template: Story<Props> = args => <Thing {...args} />;
-
-// By passing using the Args format for exported stories, you can control the props for a component for reuse in a test
-// https://storybook.js.org/docs/react/workflows/unit-testing
-export const Default = Template.bind({});
-
-Default.args = {};
+const options = [
+  { label: 'Option 1', value: 'option1' },
+  { label: 'Option 2', value: 'option2' },
+  { label: 'Option 3', value: 'option3' },
+];
+export const Default = () => {
+  const [selected, setSelected] = useState<Option<string> | null>(null);
+  return (
+    <SelectWrapper>
+      <Select<string> onChange={(option) => setSelected(option)}>
+        <SelectTrigger>
+          {({ selected }) => (
+            <span>{selected?.label || 'Select an option'}</span>
+          )}
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectOption key={option.value} value={option}>
+              {(selected) => (
+                <div
+                  style={{
+                    backgroundColor:
+                      selected?.value == option.value
+                        ? '#80cbc4'
+                        : 'transparent',
+                    padding: '0.75rem',
+                  }}
+                >
+                  <span>{option.label}</span>
+                </div>
+              )}
+            </SelectOption>
+          ))}
+        </SelectContent>
+      </Select>
+    </SelectWrapper>
+  );
+};

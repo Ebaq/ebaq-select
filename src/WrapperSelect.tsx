@@ -32,6 +32,7 @@ interface SelectProps<T> {
   onChange?: (option: Option<T>) => void;
   children: ReactNode;
   className?: string;
+  wrapperClassName?: string;
 }
 
 interface Option<T> {
@@ -39,32 +40,12 @@ interface Option<T> {
   value: T;
 }
 
-export const SelectWrapper = ({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className: string;
-}) => {
-  const wrapperStyle: CSSProperties = {
-    maxHeight: '2.75rem',
-    height: '100%',
-    width: ' 100%',
-    minWidth: '200px',
-    position: 'relative',
-  };
-  return (
-    <div style={wrapperStyle} className={className ?? ''}>
-      {children}
-    </div>
-  );
-};
-
 export const Select = <T,>({
   value,
   onChange,
   children,
   className,
+  wrapperClassName,
 }: SelectProps<T>) => {
   const [selected, setSelected] = useState<Option<T> | null>(value || null);
   const [opened, setOpened] = useState(false);
@@ -84,6 +65,15 @@ export const Select = <T,>({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
+  };
+
+  const wrapperStyle: CSSProperties = {
+    maxHeight: '2.75rem',
+    minHeight: '2.75rem',
+    height: '100%',
+    width: ' 100%',
+    minWidth: '200px',
+    position: 'relative',
   };
 
   useEffect(() => {
@@ -115,13 +105,15 @@ export const Select = <T,>({
     <SelectContext.Provider
       value={{ selected, setSelected: handleSelect, opened, setOpened }}
     >
-      <div
-        ref={root}
-        data-opened={opened}
-        style={selectStyle}
-        className={`${className ?? ''}`}
-      >
-        {children}
+      <div style={wrapperStyle} className={wrapperClassName ?? ''}>
+        <div
+          ref={root}
+          data-opened={opened}
+          style={selectStyle}
+          className={`${className ?? ''}`}
+        >
+          {children}
+        </div>
       </div>
     </SelectContext.Provider>
   );
@@ -216,6 +208,8 @@ export const SelectOption = <T,>({
       style={{
         cursor: 'pointer',
       }}
+      data-selected={selected?.value == value.value}
+      data-hasSelected={!!selected?.value}
       className={`${className ?? ''}`}
     >
       {children(selected)}
