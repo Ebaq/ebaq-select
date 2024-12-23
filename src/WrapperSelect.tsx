@@ -2,6 +2,7 @@
 
 import React, {
   createContext,
+  CSSProperties,
   ReactNode,
   useContext,
   useEffect,
@@ -40,7 +41,14 @@ interface Option<T> {
 }
 
 export const SelectWrapper = ({ children }: { children: ReactNode }) => {
-  return <div className="wrapper">{children}</div>;
+  const wrapperStyle: CSSProperties = {
+    maxHeight: '2.75rem',
+    height: '100%',
+    width: ' 100%',
+    minWidth: '200px',
+    position: 'relative',
+  };
+  return <div style={wrapperStyle}>{children}</div>;
 };
 
 export const Select = <T,>({
@@ -52,6 +60,22 @@ export const Select = <T,>({
   const [selected, setSelected] = useState<Option<T> | null>(value || null);
   const [opened, setOpened] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const selectStyle: CSSProperties = {
+    position: 'absolute',
+    maxHeight: opened ? '300px' : '2.75rem',
+    width: '100%',
+    borderRadius: '0.5rem',
+    border: '1px solid #404348',
+    outline: 'none',
+    fontSize: '0.875rem',
+    lineHeight: '1.25rem',
+    transition: 'all 0.3s ease-in-out',
+    backgroundColor: 'transparent',
+    zIndex: 999,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -82,7 +106,12 @@ export const Select = <T,>({
     <SelectContext.Provider
       value={{ selected, setSelected: handleSelect, opened, setOpened }}
     >
-      <div ref={root} data-opened={opened} className={`select ${className}`}>
+      <div
+        ref={root}
+        data-opened={opened}
+        style={selectStyle}
+        className={`${className ?? ''}`}
+      >
         {children}
       </div>
     </SelectContext.Provider>
@@ -97,10 +126,17 @@ interface TriggerProps {
 export const SelectTrigger = ({ children, className }: TriggerProps) => {
   const { selected, opened, setOpened } = useSelectContext();
 
+  const placeholderStyle: CSSProperties = {
+    padding: '0.75rem 0.75rem',
+    cursor: 'pointer',
+    backgroundColor: 'transparent',
+  };
+
   return (
     <span
       onClick={() => setOpened(!opened)}
-      className={`placeholder ${className}`}
+      style={placeholderStyle}
+      className={`${className ?? ''}`}
     >
       {children({ selected })}
     </span>
@@ -115,6 +151,13 @@ interface ContentProps {
 export const SelectContent = ({ children, className }: ContentProps) => {
   const { opened } = useSelectContext();
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const optionsStyle: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    padding: '0',
+    margin: '0',
+    listStyle: 'none',
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -131,13 +174,12 @@ export const SelectContent = ({ children, className }: ContentProps) => {
     };
   }, [opened]);
 
-  // if (!opened) return null
-
   return (
     <div
       ref={rootRef}
-      className={`mt-2 w-full bg-white border rounded-md shadow-lg options
-				${className}`}
+      style={optionsStyle}
+      className={`options
+				${className ?? ''}`}
     >
       {children}
     </div>
@@ -162,7 +204,10 @@ export const SelectOption = <T,>({
       onClick={() => {
         setSelected(value);
       }}
-      className={`option ${className}`}
+      style={{
+        cursor: 'pointer',
+      }}
+      className={`${className ?? ''}`}
     >
       {children(selected)}
     </div>

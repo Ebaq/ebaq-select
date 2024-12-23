@@ -5,8 +5,8 @@ module.exports = {
     config.plugins.push(
       postcss({
         extensions: ['.css'],
-        extract: true, // Выносит CSS в отдельный файл
-        minimize: true, // Минификация CSS
+        extract: true,
+        minimize: true,
       })
     );
     return config;
