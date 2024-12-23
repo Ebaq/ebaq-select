@@ -9,7 +9,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import './WrapperSelect.css';
 
 interface SelectContextValue<T> {
   selected: Option<T> | null;
@@ -40,7 +39,13 @@ interface Option<T> {
   value: T;
 }
 
-export const SelectWrapper = ({ children }: { children: ReactNode }) => {
+export const SelectWrapper = ({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}) => {
   const wrapperStyle: CSSProperties = {
     maxHeight: '2.75rem',
     height: '100%',
@@ -48,7 +53,11 @@ export const SelectWrapper = ({ children }: { children: ReactNode }) => {
     minWidth: '200px',
     position: 'relative',
   };
-  return <div style={wrapperStyle}>{children}</div>;
+  return (
+    <div style={wrapperStyle} className={className ?? ''}>
+      {children}
+    </div>
+  );
 };
 
 export const Select = <T,>({
