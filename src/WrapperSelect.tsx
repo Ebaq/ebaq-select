@@ -33,6 +33,8 @@ interface SelectProps<T> {
   children: ReactNode;
   className?: string;
   wrapperClassName?: string;
+  style?: CSSProperties;
+  wrapperStyle?: CSSProperties;
 }
 
 interface Option<T> {
@@ -46,13 +48,19 @@ export const Select = <T,>({
   children,
   className,
   wrapperClassName,
+  style,
+  wrapperStyle,
 }: SelectProps<T>) => {
   const [selected, setSelected] = useState<Option<T> | null>(value || null);
   const [opened, setOpened] = useState(false);
+  const [minWidth, setMinWidth] = useState<number>(0);
+  const [minHeight, setMinHeight] = useState<string>('0');
   const root = useRef<HTMLDivElement>(null);
-  const selectStyle: CSSProperties = {
+  const defaultSelectStyle: CSSProperties = {
     position: 'absolute',
-    maxHeight: opened ? '300px' : '2.75rem',
+    maxHeight: opened ? 300 : 46,
+    minHeight: 46,
+    minWidth: 'fit-content',
     width: '100%',
     borderRadius: '0.5rem',
     border: '1px solid #404348',
@@ -61,20 +69,26 @@ export const Select = <T,>({
     lineHeight: '1.25rem',
     transition: 'all 0.3s ease-in-out',
     backgroundColor: 'transparent',
-    zIndex: 999,
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
+    textWrap: 'nowrap',
   };
 
-  const wrapperStyle: CSSProperties = {
-    maxHeight: '2.75rem',
-    minHeight: '2.75rem',
+  const defaultWrapperStyle: CSSProperties = {
+    minHeight: minHeight,
     height: '100%',
-    width: ' 100%',
-    minWidth: '200px',
+    minWidth: minWidth,
     position: 'relative',
   };
+
+  useEffect(() => {
+    if (root.current) {
+      const rootWidth = root.current.offsetWidth;
+      setMinWidth(rootWidth);
+      setMinHeight(root.current.style.minHeight);
+    }
+  }, [root.current]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -105,12 +119,15 @@ export const Select = <T,>({
     <SelectContext.Provider
       value={{ selected, setSelected: handleSelect, opened, setOpened }}
     >
-      <div style={wrapperStyle} className={wrapperClassName ?? ''}>
+      <div
+        style={{ ...defaultWrapperStyle, ...wrapperStyle }}
+        className={wrapperClassName!}
+      >
         <div
           ref={root}
           data-opened={opened}
-          style={selectStyle}
-          className={`${className ?? ''}`}
+          style={{ ...defaultSelectStyle, ...style }}
+          className={className!}
         >
           {children}
         </div>
@@ -122,22 +139,26 @@ export const Select = <T,>({
 interface TriggerProps {
   children: (context: { selected: any }) => ReactNode;
   className?: string;
+  style?: CSSProperties;
 }
 
-export const SelectTrigger = ({ children, className }: TriggerProps) => {
+export const SelectTrigger = ({ children, className, style }: TriggerProps) => {
   const { selected, opened, setOpened } = useSelectContext();
 
   const placeholderStyle: CSSProperties = {
-    padding: '0.75rem 0.75rem',
+    padding: '0 0.75rem',
     cursor: 'pointer',
     backgroundColor: 'transparent',
+    display: 'flex',
+    alignItems: 'center',
+    minHeight: 46,
   };
 
   return (
     <span
       onClick={() => setOpened(!opened)}
-      style={placeholderStyle}
-      className={`${className ?? ''}`}
+      style={{ ...placeholderStyle, ...style }}
+      className={className!}
     >
       {children({ selected })}
     </span>
@@ -147,9 +168,10 @@ export const SelectTrigger = ({ children, className }: TriggerProps) => {
 interface ContentProps {
   children: ReactNode;
   className?: string;
+  style?: CSSProperties;
 }
 
-export const SelectContent = ({ children, className }: ContentProps) => {
+export const SelectContent = ({ children, className, style }: ContentProps) => {
   const { opened } = useSelectContext();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const optionsStyle: CSSProperties = {
@@ -178,9 +200,8 @@ export const SelectContent = ({ children, className }: ContentProps) => {
   return (
     <div
       ref={rootRef}
-      style={optionsStyle}
-      className={`options
-				${className ?? ''}`}
+      style={{ ...optionsStyle, ...style }}
+      className={className!}
     >
       {children}
     </div>
@@ -191,12 +212,14 @@ interface OptionProps<T> {
   value: Option<T>;
   children: (context: Option<T> | null) => ReactNode;
   className?: string;
+  style?: CSSProperties;
 }
 
 export const SelectOption = <T,>({
   value,
   children,
   className,
+  style,
 }: OptionProps<T>) => {
   const { selected, setSelected } = useSelectContext<T>();
 
@@ -207,10 +230,11 @@ export const SelectOption = <T,>({
       }}
       style={{
         cursor: 'pointer',
+        ...style,
       }}
       data-selected={selected?.value == value.value}
       data-hasSelected={!!selected?.value}
-      className={`${className ?? ''}`}
+      className={className!}
     >
       {children(selected)}
     </div>

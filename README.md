@@ -13,34 +13,22 @@ const options = [
 export const Example = () => {
 
 	return (
-		<SelectWrapper>
-			<Select<string> onChange={option => console.log(option)}>
-				<SelectTrigger>
-					{({ selected }) => (
-						<span>{selected?.label || 'Select an option'}</span>
-					)}
-				</SelectTrigger>
-				<SelectContent>
-					{options.map(option => (
-						<SelectOption key={option.value} value={option}>
-							{selected => (
-								<div
-									style={{
-										backgroundColor:
-											selected?.value == option.value
-												? '#80cbc4'
-												: 'transparent',
-										padding: '0.75rem',
-									}}
-								>
-									<span>{option.label}</span>
-								</div>
-							)}
-						</SelectOption>
-					))}
-				</SelectContent>
-			</Select>
-		</SelectWrapper>
+		<Select
+			onChange={selected => console.log('Selected:', selected)}
+		>
+			<SelectTrigger className={'selected'}>
+				{({ selected }: { selected: Option<string> }) => (
+					<span>{selected?.label || 'Choose an option'}</span>
+				)}
+			</SelectTrigger>
+			<SelectContent>
+				{options.map(option => (
+					<SelectOption key={option.value} value={option} className='option'>
+						{selected => <span>{option.label}</span>}
+					</SelectOption>
+				))}
+			</SelectContent>
+		</Select>
 	)
 }
 ```
@@ -48,25 +36,20 @@ export const Example = () => {
 With predefined value:
 
 ```typescript
-<SelectWrapper>
-	<Select
-			value={options[0]} // Here we setting option that we need
-			onChange={selected => console.log('Selected:', selected)}
-	>
-		<SelectTrigger>
-				{({ selected }: { selected: Option<string> }) => (
-					<span>{selected?.label || 'Choose an option'}</span>
-				)}
-		</SelectTrigger>
-		<SelectContent>
-				{options.map(option => (
-					<SelectOption key={option.value} value={option} className='option'>
-						{selected => <span>{option.label}</span>}
-					</SelectOption>
-				))}
-		</SelectContent>
-	</Select>
-</SelectWrapper>
+<Select value={options[0]} onChange={selected => console.log('Selected:', selected)}>
+	<SelectTrigger className={'selected'}>
+		{({ selected }: { selected: Option<string> }) => (
+			<span>{selected?.label || 'Choose an option'}</span>
+		)}
+	</SelectTrigger>
+	<SelectContent>
+		{options.map(option => (
+			<SelectOption key={option.value} value={option} className='option'>
+				{selected => <span>{option.label}</span>}
+			</SelectOption>
+		))}
+	</SelectContent>
+</Select>
 ```
 
 ### Styles
@@ -92,3 +75,84 @@ With that you can style not selected and selected options like this:
 ```
 
 To you this, you need to give a class to <SelectOption>
+
+Select width adaptive to its content and height is static. This example:
+
+```
+const options = [
+	{
+		label: 'test1234567890',
+		value: 'test1',
+	},
+	{
+		label: 'test1234567890',
+		value: 'test2',
+	},
+	{
+		label: 'test123456789012345678901234567890',
+		value: 'test3',
+	},
+]
+```
+
+will render like this:
+
+![Example](https://i.imgur.com/WHQg18Y.png)
+
+if you want to make it change width you can simply just use inline styles on select or select wrapper or set class with `!important`.
+
+If you want to change height of placeholder you'll need to change min-height value in `Select` and `SelectTrigger`. Example:
+
+```
+const options = [
+	{
+		label: 'test1234567890 test1234567890',
+		value: 'test1',
+	},
+	{
+		label: 'test1234567890',
+		value: 'test2',
+	},
+	{
+		label: 'test1234567890123456789',
+		value: 'test3',
+	},
+]
+
+```
+
+```
+<Select
+	wrapperClassName='wrapper'
+	value={options[0]}
+	style={{
+		textWrap: 'wrap',
+		minHeight: 60,
+	}}
+	onChange={selected => console.log('Selected:', selected)}
+>
+	<SelectTrigger
+		className={'selected'}
+		style={{
+			minHeight: 60,
+		}}
+	>
+		{({ selected }: { selected: Option<string> }) => (
+			<span>{selected?.label || 'Choose an option'}</span>
+		)}
+	</SelectTrigger>
+	<SelectContent>
+		{options.map(option => (
+			<SelectOption key={option.value} value={option} className='option'>
+				{() => <span>{option.label}</span>}
+			</SelectOption>
+		))}
+	</SelectContent>
+</Select>
+```
+
+This code looks like this:
+
+![Example](https://i.imgur.com/QPPUftR.png)
+
+![Example](https://i.imgur.com/QTjhoXm.png)
