@@ -58,7 +58,7 @@ You can customize options with 2 data attributes:
 
 [data-selected] means that this option is selected
 
-[data-hasSelected] means that any option is selected
+[data-hasselected] means that any option is selected
 
 With that you can style not selected and selected options like this:
 
@@ -69,7 +69,7 @@ With that you can style not selected and selected options like this:
 }
 
 /* This style is for not selected option, for example to make them less bright */
-.option[data-selected='false'][data-hasSelected='true'] {
+.option[data-selected='false'][data-hasselected='true'] {
   color: #fefefe4d;
 }
 ```

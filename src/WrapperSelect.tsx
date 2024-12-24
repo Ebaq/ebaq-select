@@ -234,7 +234,7 @@ export const SelectOption = <T,>({
         ...style,
       }}
       data-selected={selected?.value == value.value}
-      data-hasSelected={!!selected?.value}
+      data-hasselected={!!selected?.value}
       className={className!}
     >
       {children(selected)}
