@@ -84,10 +84,5 @@
     "tslib": "^2.8.1",
     "typescript": "^5.7.2"
   },
-  "dependencies": {
-    "@storybook/addon-interactions": "^8.4.7",
-    "autoprefixer": "^10.4.20",
-    "cssnano": "^7.0.6",
-    "storybook": "^8.4.7"
-  }
+  "dependencies": {}
 }
