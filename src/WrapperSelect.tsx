@@ -6,6 +6,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -27,7 +28,7 @@ export const useSelectContext = <T,>(): SelectContextValue<T> => {
   return context;
 };
 
-interface SelectProps<T> {
+export interface SelectProps<T> {
   value?: Option<T>;
   onChange?: (option: Option<T>) => void;
   children: ReactNode;
@@ -37,7 +38,7 @@ interface SelectProps<T> {
   wrapperStyle?: CSSProperties;
 }
 
-interface Option<T> {
+export interface Option<T> {
   label: string;
   value: T;
 }
@@ -82,7 +83,7 @@ export const Select = <T,>({
     position: 'relative',
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (root.current) {
       const rootWidth = root.current.offsetWidth;
       setMinWidth(rootWidth);
