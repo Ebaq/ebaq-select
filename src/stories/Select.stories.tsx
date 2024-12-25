@@ -22,6 +22,15 @@ const options = [
   { label: 'Option 1', value: 'option1' },
   { label: 'Option 2', value: 'option2' },
   { label: 'Option 3', value: 'option3' },
+  { label: 'Option 4', value: 'option4' },
+  // { label: 'Option 5', value: 'option5' },
+  // { label: 'Option 6', value: 'option6' },
+  // { label: 'Option 7', value: 'option7' },
+  // { label: 'Option 8', value: 'option8' },
+  // { label: 'Option 9', value: 'option9' },
+  // { label: 'Option 10', value: 'option10' },
+  // { label: 'Option 11', value: 'option11' },
+  // { label: 'Option 12', value: 'option12' },
 ];
 
 export const Default = () => {
@@ -172,6 +181,200 @@ export const Multi = () => {
       <MultiSelectTrigger
         style={{
           width: 180,
+        }}
+      >
+        {({ selected, opened }) => (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
+          >
+            <div
+              style={{
+                maxWidth: '85%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {selected.length > 0
+                ? selected.map((option, index) =>
+                    index == 0 ? (
+                      <span key={option.value}>{option.label}</span>
+                    ) : (
+                      <span key={option.value}>, {option.label}</span>
+                    )
+                  )
+                : 'Select options'}{' '}
+            </div>
+            <ChevronDownSVG isOpen={opened} />
+          </div>
+        )}
+      </MultiSelectTrigger>
+      <MultiSelectContent>
+        {options.map((option) => (
+          <MultiSelectOption
+            key={option.value}
+            value={option}
+            className="option"
+          >
+            {({ isSelected }) => (
+              <div>
+                <span>{option.label}</span> {isSelected && <span>{'✔️'}</span>}
+              </div>
+            )}
+          </MultiSelectOption>
+        ))}
+      </MultiSelectContent>
+    </MultiSelect>
+  );
+};
+
+export const MultiCustomWidth = () => {
+  return (
+    <MultiSelect<string>
+      onChange={(option) => console.log(option)}
+      style={{
+        width: 500,
+      }}
+    >
+      <MultiSelectTrigger
+        style={{
+          width: 500,
+        }}
+      >
+        {({ selected, opened }) => (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
+          >
+            <div
+              style={{
+                maxWidth: '85%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {selected.length > 0
+                ? selected.map((option, index) =>
+                    index == 0 ? (
+                      <span key={option.value}>{option.label}</span>
+                    ) : (
+                      <span key={option.value}>, {option.label}</span>
+                    )
+                  )
+                : 'Select options'}{' '}
+            </div>
+            <ChevronDownSVG isOpen={opened} />
+          </div>
+        )}
+      </MultiSelectTrigger>
+      <MultiSelectContent>
+        {options.map((option) => (
+          <MultiSelectOption
+            key={option.value}
+            value={option}
+            className="option"
+          >
+            {({ isSelected }) => (
+              <div>
+                <span>{option.label}</span> {isSelected && <span>{'✔️'}</span>}
+              </div>
+            )}
+          </MultiSelectOption>
+        ))}
+      </MultiSelectContent>
+    </MultiSelect>
+  );
+};
+
+export const MultiCustomHeight = () => {
+  return (
+    <MultiSelect<string>
+      onChange={(option) => console.log(option)}
+      style={{
+        minHeight: 80,
+        maxWidth: 200,
+        width: 200,
+      }}
+    >
+      <MultiSelectTrigger
+        style={{
+          minHeight: 80,
+          maxWidth: 180,
+        }}
+      >
+        {({ selected, opened }) => (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
+          >
+            <div
+              style={{
+                maxWidth: '85%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {selected.length > 0
+                ? selected.map((option, index) =>
+                    index == 0 ? (
+                      <span key={option.value}>{option.label}</span>
+                    ) : (
+                      <span key={option.value}>, {option.label}</span>
+                    )
+                  )
+                : 'Select options'}{' '}
+            </div>
+            <ChevronDownSVG isOpen={opened} />
+          </div>
+        )}
+      </MultiSelectTrigger>
+      <MultiSelectContent>
+        {options.map((option) => (
+          <MultiSelectOption
+            key={option.value}
+            value={option}
+            className="option"
+          >
+            {({ isSelected }) => (
+              <div>
+                <span>{option.label}</span> {isSelected && <span>{'✔️'}</span>}
+              </div>
+            )}
+          </MultiSelectOption>
+        ))}
+      </MultiSelectContent>
+    </MultiSelect>
+  );
+};
+
+export const MultiMaxToSelect = () => {
+  return (
+    <MultiSelect<string>
+      onChange={(option) => console.log(option)}
+      style={{
+        maxWidth: 200,
+        width: 200,
+      }}
+      maxSelect={2}
+    >
+      <MultiSelectTrigger
+        style={{
+          maxWidth: 180,
         }}
       >
         {({ selected, opened }) => (

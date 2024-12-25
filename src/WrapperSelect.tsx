@@ -229,6 +229,7 @@ export const SelectContent = ({ children, className, style }: ContentProps) => {
     padding: '0',
     margin: '0',
     listStyle: 'none',
+    overflowY: 'auto',
   };
 
   useEffect(() => {

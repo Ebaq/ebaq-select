@@ -40,6 +40,7 @@ export interface MultiSelectProps<T> {
   wrapperClassName?: string;
   style?: CSSProperties;
   wrapperStyle?: CSSProperties;
+  maxSelect?: number;
 }
 
 export interface Option<T> {
@@ -55,6 +56,7 @@ export const MultiSelect = <T,>({
   wrapperClassName,
   style,
   wrapperStyle,
+  maxSelect,
 }: MultiSelectProps<T>) => {
   const [selected, setSelected] = useState<Option<T>[]>(value);
   const [opened, setOpened] = useState(false);
@@ -67,7 +69,11 @@ export const MultiSelect = <T,>({
       const isSelected = prev.some((o) => o.value === option.value);
       const newSelected = isSelected
         ? prev.filter((o) => o.value !== option.value)
-        : [...prev, option];
+        : maxSelect
+          ? selected.length < maxSelect
+            ? [...prev, option]
+            : [...prev]
+          : [...prev, option];
       onChange?.(newSelected);
       return newSelected;
     });
@@ -236,6 +242,7 @@ export const MultiSelectContent = ({
     padding: '0',
     margin: '0',
     listStyle: 'none',
+    overflowY: 'auto',
   };
 
   useEffect(() => {

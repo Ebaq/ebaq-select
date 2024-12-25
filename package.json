@@ -41,7 +41,8 @@
     "beautiful",
     "fancy",
     "custom",
-    "customize"
+    "customize",
+    "multiselect"
   ],
   "author": "ebaq",
   "module": "dist/fancy-select.esm.js",
