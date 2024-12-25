@@ -58,7 +58,7 @@ You can customize options with 2 data attributes:
 
 [data-selected] means that this option is selected
 
-[data-hasselected] means that any option is selected
+[data-hasSelected] means that any option is selected
 
 With that you can style not selected and selected options like this:
 
@@ -69,7 +69,7 @@ With that you can style not selected and selected options like this:
 }
 
 /* This style is for not selected option, for example to make them less bright */
-.option[data-selected='false'][data-hasselected='true'] {
+.option[data-selected='false'][data-hasSelected='true'] {
   color: #fefefe4d;
 }
 ```
@@ -156,3 +156,72 @@ This code looks like this:
 ![Example](https://i.imgur.com/QPPUftR.png)
 
 ![Example](https://i.imgur.com/QTjhoXm.png)
+
+Supports Multielect, example:
+
+```
+export const Multi = () => {
+  return (
+    <MultiSelect<string>
+      onChange={(option) => console.log(option)}
+      style={{
+        width: 200,
+      }}
+    >
+      <MultiSelectTrigger
+        style={{
+          width: 180,
+        }}
+      >
+        {({ selected, opened }) => (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
+          >
+            <div
+              style={{
+                maxWidth: '85%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {selected.length > 0
+                ? selected.map((option, index) =>
+                    index == 0 ? (
+                      <span key={option.value}>{option.label}</span>
+                    ) : (
+                      <span key={option.value}>, {option.label}</span>
+                    )
+                  )
+                : 'Select options'}{' '}
+            </div>
+            <ChevronDownSVG isOpen={opened} />
+          </div>
+        )}
+      </MultiSelectTrigger>
+      <MultiSelectContent>
+        {options.map((option) => (
+          <MultiSelectOption
+            key={option.value}
+            value={option}
+            className="option"
+          >
+            {({ isSelected }) => (
+              <div>
+                <span>{option.label}</span> {isSelected && <span>{'✔️'}</span>}
+              </div>
+            )}
+          </MultiSelectOption>
+        ))}
+      </MultiSelectContent>
+    </MultiSelect>
+  );
+};
+```
+
+You can look closer and test it in storybook.

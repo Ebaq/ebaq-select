@@ -11,26 +11,30 @@ import React, {
   useState,
 } from 'react';
 
-interface SelectContextValue<T> {
-  selected: Option<T> | null;
-  setSelected: (option: Option<T>) => void;
+interface MultiSelectContextValue<T> {
+  selected: Option<T>[];
+  toggleSelected: (option: Option<T>) => void;
   opened: boolean;
-  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpened: (opened: boolean) => void;
 }
 
-const SelectContext = createContext<SelectContextValue<any> | null>(null);
+const MultiSelectContext = createContext<MultiSelectContextValue<any> | null>(
+  null
+);
 
-export const useSelectContext = <T,>(): SelectContextValue<T> => {
-  const context = useContext(SelectContext);
+export const useMultiSelectContext = <T,>(): MultiSelectContextValue<T> => {
+  const context = useContext(MultiSelectContext);
   if (!context) {
-    throw new Error('useSelectContext must be used within a SelectProvider');
+    throw new Error(
+      'useMultiSelectContext must be used within a MultiSelectProvider'
+    );
   }
   return context;
 };
 
-export interface SelectProps<T> {
-  value?: Option<T>;
-  onChange?: (option: Option<T>) => void;
+export interface MultiSelectProps<T> {
+  value?: Option<T>[];
+  onChange?: (options: Option<T>[]) => void;
   children: ReactNode;
   className?: string;
   wrapperClassName?: string;
@@ -43,44 +47,30 @@ export interface Option<T> {
   value: T;
 }
 
-export const Select = <T,>({
-  value,
+export const MultiSelect = <T,>({
+  value = [],
   onChange,
   children,
   className,
   wrapperClassName,
   style,
   wrapperStyle,
-}: SelectProps<T>) => {
-  const [selected, setSelected] = useState<Option<T> | null>(value || null);
+}: MultiSelectProps<T>) => {
+  const [selected, setSelected] = useState<Option<T>[]>(value);
   const [opened, setOpened] = useState(false);
   const [minWidth, setMinWidth] = useState<number>(0);
   const [minHeight, setMinHeight] = useState<string>('0');
   const root = useRef<HTMLDivElement>(null);
-  const defaultSelectStyle: CSSProperties = {
-    position: 'absolute',
-    maxHeight: opened ? 300 : 46,
-    minHeight: 46,
-    minWidth: 'fit-content',
-    width: '100%',
-    borderRadius: '0.5rem',
-    border: '1px solid #404348',
-    outline: 'none',
-    fontSize: '0.875rem',
-    lineHeight: '1.25rem',
-    transition: 'all 0.3s ease-in-out',
-    backgroundColor: 'transparent',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    textWrap: 'nowrap',
-  };
 
-  const defaultWrapperStyle: CSSProperties = {
-    minHeight: minHeight,
-    height: '100%',
-    minWidth: minWidth,
-    position: 'relative',
+  const toggleSelected = (option: Option<T>) => {
+    setSelected((prev) => {
+      const isSelected = prev.some((o) => o.value === option.value);
+      const newSelected = isSelected
+        ? prev.filter((o) => o.value !== option.value)
+        : [...prev, option];
+      onChange?.(newSelected);
+      return newSelected;
+    });
   };
 
   useLayoutEffect(() => {
@@ -95,8 +85,6 @@ export const Select = <T,>({
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       if (root.current && !root.current.contains(target)) {
-        event.preventDefault();
-        event.stopPropagation();
         setOpened(false);
       }
     };
@@ -104,7 +92,6 @@ export const Select = <T,>({
     if (opened) {
       document.addEventListener('click', handleClickOutside);
     }
-
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
@@ -128,52 +115,71 @@ export const Select = <T,>({
     };
   }, [opened]);
 
-  const handleSelect = (option: Option<T>) => {
-    setSelected(option);
-    onChange?.(option);
-    setOpened(false);
-  };
-
   return (
-    <SelectContext.Provider
-      value={{ selected, setSelected: handleSelect, opened, setOpened }}
+    <MultiSelectContext.Provider
+      value={{ selected, toggleSelected, opened, setOpened }}
     >
       <div
-        style={{ ...defaultWrapperStyle, ...wrapperStyle }}
+        style={{
+          minHeight: minHeight,
+          height: '100%',
+          minWidth: minWidth,
+          position: 'relative',
+          ...wrapperStyle,
+        }}
         className={wrapperClassName!}
-        role="combobox"
-        aria-haspopup="listbox"
-        aria-expanded={opened}
-        aria-controls="select-list"
       >
         <div
           ref={root}
           data-opened={opened}
-          tabIndex={1}
-          style={{ ...defaultSelectStyle, ...style }}
+          style={{
+            position: 'absolute',
+            maxHeight: opened ? 300 : 46,
+            minHeight: 46,
+            minWidth: 'fit-content',
+            width: '100%',
+            borderRadius: '0.5rem',
+            border: '1px solid #404348',
+            outline: 'none',
+            fontSize: '0.875rem',
+            lineHeight: '1.25rem',
+            transition: 'all 0.3s ease-in-out',
+            backgroundColor: 'transparent',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            ...style,
+          }}
           className={className!}
         >
           {children}
         </div>
       </div>
-    </SelectContext.Provider>
+    </MultiSelectContext.Provider>
   );
 };
 
 interface TriggerProps {
-  children: (context: { selected: any; opened: boolean }) => ReactNode;
+  children: (context: {
+    selected: Option<any>[];
+    opened: boolean;
+  }) => ReactNode;
   className?: string;
   style?: CSSProperties;
 }
 
-export const SelectTrigger = ({ children, className, style }: TriggerProps) => {
-  const { selected, opened, setOpened } = useSelectContext();
+export const MultiSelectTrigger = ({
+  children,
+  className,
+  style,
+}: TriggerProps) => {
+  const { selected, opened, setOpened } = useMultiSelectContext();
   const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (isFocused && event.key == 'Enter') {
-        setOpened((prev) => !prev);
+        setOpened(true);
       }
     };
 
@@ -201,13 +207,10 @@ export const SelectTrigger = ({ children, className, style }: TriggerProps) => {
     <span
       onClick={() => setOpened(!opened)}
       style={{ ...placeholderStyle, ...style }}
-      className={className!}
       tabIndex={1}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
-      role="button"
-      aria-haspopup="listbox"
-      aria-expanded={opened}
+      className={className!}
     >
       {children({ selected, opened })}
     </span>
@@ -220,8 +223,12 @@ interface ContentProps {
   style?: CSSProperties;
 }
 
-export const SelectContent = ({ children, className, style }: ContentProps) => {
-  const { opened } = useSelectContext();
+export const MultiSelectContent = ({
+  children,
+  className,
+  style,
+}: ContentProps) => {
+  const { opened } = useMultiSelectContext();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const optionsStyle: CSSProperties = {
     display: 'flex',
@@ -248,11 +255,9 @@ export const SelectContent = ({ children, className, style }: ContentProps) => {
 
   return (
     <div
-      id="select-list"
       ref={rootRef}
       style={{ ...optionsStyle, ...style }}
       className={className!}
-      role="listbox"
     >
       {children}
     </div>
@@ -261,26 +266,25 @@ export const SelectContent = ({ children, className, style }: ContentProps) => {
 
 interface OptionProps<T> {
   value: Option<T>;
-  children: (context: Option<T> | null) => ReactNode;
+  children: (context: { isSelected: boolean }) => ReactNode;
   className?: string;
   style?: CSSProperties;
 }
 
-export const SelectOption = <T,>({
+export const MultiSelectOption = <T,>({
   value,
   children,
   className,
   style,
 }: OptionProps<T>) => {
-  const { selected, opened, setSelected, setOpened } = useSelectContext<T>();
+  const { selected, opened, toggleSelected, setOpened } =
+    useMultiSelectContext<T>();
   const [isFocused, setIsFocused] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (isFocused && event.key == 'Enter') {
-        setSelected(value);
-        ref.current?.blur();
+        toggleSelected(value);
       }
     };
 
@@ -298,26 +302,22 @@ export const SelectOption = <T,>({
     };
   }, [isFocused]);
 
+  const isSelected = selected.some((o) => o.value === value.value);
+
   return (
     <div
-      onClick={() => {
-        setSelected(value);
-      }}
-      tabIndex={1}
+      onClick={() => toggleSelected(value)}
       style={{
         cursor: 'pointer',
         ...style,
       }}
-      ref={ref}
+      tabIndex={1}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
-      data-selected={selected?.value == value.value}
-      data-hasselected={!!selected?.value}
+      data-selected={isSelected}
       className={className!}
-      role="option"
-      aria-selected={selected?.value === value.value}
     >
-      {children(selected)}
+      {children({ isSelected })}
     </div>
   );
 };
