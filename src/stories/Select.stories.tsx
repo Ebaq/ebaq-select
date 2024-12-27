@@ -86,6 +86,7 @@ export const CustomWidth = () => {
       style={{
         width: 300,
       }}
+      data-testid={'select'}
     >
       <SelectTrigger>
         {({ selected }) => <span>{selected?.label || 'Select an option'}</span>}
@@ -376,6 +377,7 @@ export const MultiMaxToSelect = () => {
         style={{
           maxWidth: 180,
         }}
+        data-testId={'trigger'}
       >
         {({ selected, opened }) => (
           <div

@@ -178,6 +178,7 @@ export const MultiSelectTrigger = ({
   children,
   className,
   style,
+  ...rest
 }: TriggerProps) => {
   const { selected, opened, setOpened } = useMultiSelectContext();
   const [isFocused, setIsFocused] = useState(false);
@@ -214,9 +215,11 @@ export const MultiSelectTrigger = ({
       onClick={() => setOpened(!opened)}
       style={{ ...placeholderStyle, ...style }}
       tabIndex={1}
+      role="button"
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
       className={className!}
+      {...rest}
     >
       {children({ selected, opened })}
     </span>
@@ -233,6 +236,7 @@ export const MultiSelectContent = ({
   children,
   className,
   style,
+  ...rest
 }: ContentProps) => {
   const { opened } = useMultiSelectContext();
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -265,6 +269,7 @@ export const MultiSelectContent = ({
       ref={rootRef}
       style={{ ...optionsStyle, ...style }}
       className={className!}
+      {...rest}
     >
       {children}
     </div>
@@ -283,6 +288,7 @@ export const MultiSelectOption = <T,>({
   children,
   className,
   style,
+  ...rest
 }: OptionProps<T>) => {
   const { selected, opened, toggleSelected, setOpened } =
     useMultiSelectContext<T>();
@@ -323,6 +329,7 @@ export const MultiSelectOption = <T,>({
       onBlur={() => setIsFocused(false)}
       data-selected={isSelected}
       className={className!}
+      {...rest}
     >
       {children({ isSelected })}
     </div>

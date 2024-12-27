@@ -51,6 +51,7 @@ export const Select = <T,>({
   wrapperClassName,
   style,
   wrapperStyle,
+  ...rest
 }: SelectProps<T>) => {
   const [selected, setSelected] = useState<Option<T> | null>(value || null);
   const [opened, setOpened] = useState(false);
@@ -145,6 +146,7 @@ export const Select = <T,>({
         aria-haspopup="listbox"
         aria-expanded={opened}
         aria-controls="select-list"
+        {...rest}
       >
         <div
           ref={root}
@@ -166,7 +168,12 @@ interface TriggerProps {
   style?: CSSProperties;
 }
 
-export const SelectTrigger = ({ children, className, style }: TriggerProps) => {
+export const SelectTrigger = ({
+  children,
+  className,
+  style,
+  ...rest
+}: TriggerProps) => {
   const { selected, opened, setOpened } = useSelectContext();
   const [isFocused, setIsFocused] = useState(false);
 
@@ -208,6 +215,7 @@ export const SelectTrigger = ({ children, className, style }: TriggerProps) => {
       role="button"
       aria-haspopup="listbox"
       aria-expanded={opened}
+      {...rest}
     >
       {children({ selected, opened })}
     </span>
@@ -220,7 +228,12 @@ interface ContentProps {
   style?: CSSProperties;
 }
 
-export const SelectContent = ({ children, className, style }: ContentProps) => {
+export const SelectContent = ({
+  children,
+  className,
+  style,
+  ...rest
+}: ContentProps) => {
   const { opened } = useSelectContext();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const optionsStyle: CSSProperties = {
@@ -254,6 +267,7 @@ export const SelectContent = ({ children, className, style }: ContentProps) => {
       style={{ ...optionsStyle, ...style }}
       className={className!}
       role="listbox"
+      {...rest}
     >
       {children}
     </div>
@@ -272,6 +286,7 @@ export const SelectOption = <T,>({
   children,
   className,
   style,
+  ...rest
 }: OptionProps<T>) => {
   const { selected, opened, setSelected, setOpened } = useSelectContext<T>();
   const [isFocused, setIsFocused] = useState(false);
@@ -317,6 +332,7 @@ export const SelectOption = <T,>({
       className={className!}
       role="option"
       aria-selected={selected?.value === value.value}
+      {...rest}
     >
       {children(selected)}
     </div>
