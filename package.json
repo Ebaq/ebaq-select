@@ -84,8 +84,5 @@
     "tsdx": "^0.14.1",
     "tslib": "^2.8.1",
     "typescript": "^5.7.2"
-  },
-  "dependencies": {
-    "@testing-library/react": "^16.1.0"
   }
 }
