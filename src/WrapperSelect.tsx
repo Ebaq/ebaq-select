@@ -65,6 +65,7 @@ export const Select = <T,>({
     setSelected,
     opened,
     setOpened,
+    onSelect,
   };
 
   return (
@@ -261,7 +262,8 @@ export const SelectOption = <T,>({
   style,
   ...rest
 }: OptionProps<T>) => {
-  const { selected, opened, setSelected, setOpened } = useSelectContext<T>();
+  const { selected, opened, setSelected, setOpened, onSelect } =
+    useSelectContext<T>();
   const [isFocused, setIsFocused] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -292,6 +294,7 @@ export const SelectOption = <T,>({
       onClick={() => {
         setSelected(value);
         setOpened(false);
+        onSelect?.(value);
       }}
       tabIndex={1}
       style={{

@@ -16,7 +16,7 @@ import {
   MultiSelectTrigger,
 } from '../MultiSelect';
 import { ChevronDownSVG } from './ChevronDown';
-import './Select.css';
+// import './Select.css';
 export default {
   title: 'Components/Select',
   component: Select,
@@ -38,7 +38,7 @@ const options = [
 
 export const Default = () => {
   return (
-    <Select<string> onSelect={(option) => console.log(option)}>
+    <Select<string> onSelect={(option) => console.log('onSelect', option)}>
       <SelectTrigger>
         {({ selected }) => <span>{selected?.label || 'Select an option'}</span>}
       </SelectTrigger>
@@ -177,7 +177,7 @@ export const WithArrow = () => {
 export const Multi = () => {
   return (
     <MultiSelect<string>
-      onChange={(option) => console.log(option)}
+      onSelect={(option) => console.log(option)}
       style={{
         width: 200,
       }}
@@ -240,7 +240,7 @@ export const Multi = () => {
 export const MultiCustomWidth = () => {
   return (
     <MultiSelect<string>
-      onChange={(option) => console.log(option)}
+      onSelect={(option) => console.log(option)}
       style={{
         width: 500,
       }}
@@ -303,7 +303,7 @@ export const MultiCustomWidth = () => {
 export const MultiCustomHeight = () => {
   return (
     <MultiSelect<string>
-      onChange={(option) => console.log(option)}
+      onSelect={(option) => console.log(option)}
       style={{
         minHeight: 80,
         maxWidth: 200,
@@ -369,7 +369,7 @@ export const MultiCustomHeight = () => {
 export const MultiMaxToSelect = () => {
   return (
     <MultiSelect<string>
-      onChange={(option) => console.log(option)}
+      onSelect={(option) => console.log(option)}
       style={{
         maxWidth: 200,
         width: 200,
@@ -437,14 +437,31 @@ export const WithContext = () => {
   const [opened, setOpened] = useState<boolean>(false);
 
   useEffect(() => {
+    //This will work
     console.log('own context selected', selected);
   }, [selected]);
 
+  const onSelect = (option: Option<string>) => {
+    // This also will work
+    console.log(option.value);
+  };
+
   return (
     <SelectContext.Provider
-      value={{ selected, setSelected: setSelected, opened, setOpened }}
+      value={{
+        selected,
+        setSelected: setSelected,
+        opened,
+        setOpened,
+        onSelect,
+      }}
     >
-      <Select<string> onSelect={() => {}}>
+      <Select<string>
+        onSelect={() => {
+          // This won't work
+          console.log('on Select');
+        }}
+      >
         <SelectTrigger>
           {({ selected }) => (
             <span>{selected?.label || 'Select an option'}</span>

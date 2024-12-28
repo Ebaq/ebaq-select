@@ -3,20 +3,20 @@
 import React, {
   createContext,
   CSSProperties,
-  ReactNode,
   useContext,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react';
-
-interface MultiSelectContextValue<T> {
-  selected: Option<T>[];
-  toggleSelected: (option: Option<T>) => void;
-  opened: boolean;
-  setOpened: (opened: boolean) => void;
-}
+import {
+  MultiSelectContentProps,
+  MultiSelectContextValue,
+  MultiSelectOptionProps,
+  MultiSelectProps,
+  MultiSelectTriggerProps,
+  Option,
+} from './types';
 
 const MultiSelectContext = createContext<MultiSelectContextValue<any> | null>(
   null
@@ -32,25 +32,9 @@ export const useMultiSelectContext = <T,>(): MultiSelectContextValue<T> => {
   return context;
 };
 
-export interface MultiSelectProps<T> {
-  value?: Option<T>[];
-  onChange?: (options: Option<T>[]) => void;
-  children: ReactNode;
-  className?: string;
-  wrapperClassName?: string;
-  style?: CSSProperties;
-  wrapperStyle?: CSSProperties;
-  maxSelect?: number;
-}
-
-export interface Option<T> {
-  label: string;
-  value: T;
-}
-
 export const MultiSelect = <T,>({
   value = [],
-  onChange,
+  onSelect,
   children,
   className,
   wrapperClassName,
@@ -74,7 +58,7 @@ export const MultiSelect = <T,>({
             ? [...prev, option]
             : [...prev]
           : [...prev, option];
-      onChange?.(newSelected);
+      onSelect?.(newSelected);
       return newSelected;
     });
   };
@@ -165,21 +149,12 @@ export const MultiSelect = <T,>({
   );
 };
 
-interface TriggerProps {
-  children: (context: {
-    selected: Option<any>[];
-    opened: boolean;
-  }) => ReactNode;
-  className?: string;
-  style?: CSSProperties;
-}
-
 export const MultiSelectTrigger = ({
   children,
   className,
   style,
   ...rest
-}: TriggerProps) => {
+}: MultiSelectTriggerProps) => {
   const { selected, opened, setOpened } = useMultiSelectContext();
   const [isFocused, setIsFocused] = useState(false);
 
@@ -226,18 +201,12 @@ export const MultiSelectTrigger = ({
   );
 };
 
-interface ContentProps {
-  children: ReactNode;
-  className?: string;
-  style?: CSSProperties;
-}
-
 export const MultiSelectContent = ({
   children,
   className,
   style,
   ...rest
-}: ContentProps) => {
+}: MultiSelectContentProps) => {
   const { opened } = useMultiSelectContext();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const optionsStyle: CSSProperties = {
@@ -276,20 +245,13 @@ export const MultiSelectContent = ({
   );
 };
 
-interface OptionProps<T> {
-  value: Option<T>;
-  children: (context: { isSelected: boolean }) => ReactNode;
-  className?: string;
-  style?: CSSProperties;
-}
-
 export const MultiSelectOption = <T,>({
   value,
   children,
   className,
   style,
   ...rest
-}: OptionProps<T>) => {
+}: MultiSelectOptionProps<T>) => {
   const { selected, opened, toggleSelected, setOpened } =
     useMultiSelectContext<T>();
   const [isFocused, setIsFocused] = useState(false);

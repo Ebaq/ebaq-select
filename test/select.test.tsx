@@ -1,9 +1,19 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { CustomWidth, Default } from '../src/stories/Select.stories';
+import {
+  CustomWidth,
+  Default,
+  WithContext,
+} from '../src/stories/Select.stories';
+
+jest.spyOn(console, 'log').mockImplementation(() => {});
 
 describe('Default select Component', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders the Default story correctly', () => {
     render(<Default />);
     expect(screen.getByRole('button')).toHaveTextContent('Select an option');
@@ -46,6 +56,22 @@ describe('Default select Component', () => {
     fireEvent.click(outsideButton);
 
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('console log selected option value', () => {
+    render(<WithContext />);
+
+    const trigger = screen.getByRole('button');
+    fireEvent.click(trigger);
+
+    const option = screen.getByText('Option 2');
+    fireEvent.click(option);
+
+    expect(console.log).toHaveBeenCalledWith('option2');
+    expect(console.log).toHaveBeenCalledWith('own context selected', {
+      label: 'Option 2',
+      value: 'option2',
+    });
   });
 });
 
