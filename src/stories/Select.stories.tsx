@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Select,
   SelectContent,
+  SelectContext,
   SelectOption,
   SelectTrigger,
 } from '../WrapperSelect';
+
+import { Option } from '../types';
 
 import {
   MultiSelect,
@@ -35,7 +38,7 @@ const options = [
 
 export const Default = () => {
   return (
-    <Select<string> onChange={(option) => console.log(option)}>
+    <Select<string> onSelect={(option) => console.log(option)}>
       <SelectTrigger>
         {({ selected }) => <span>{selected?.label || 'Select an option'}</span>}
       </SelectTrigger>
@@ -57,7 +60,7 @@ export const Default = () => {
 export const PredefinedValue = () => {
   return (
     <Select<string>
-      onChange={(option) => console.log(option)}
+      onSelect={(option) => console.log(option)}
       value={options[0]}
     >
       <SelectTrigger>
@@ -81,7 +84,7 @@ export const PredefinedValue = () => {
 export const CustomWidth = () => {
   return (
     <Select<string>
-      onChange={(option) => console.log(option)}
+      onSelect={(option) => console.log(option)}
       value={options[0]}
       style={{
         width: 300,
@@ -109,7 +112,7 @@ export const CustomWidth = () => {
 export const CustomHeight = () => {
   return (
     <Select<string>
-      onChange={(option) => console.log(option)}
+      onSelect={(option) => console.log(option)}
       value={options[0]}
       style={{
         minHeight: 70,
@@ -139,7 +142,7 @@ export const CustomHeight = () => {
 
 export const WithArrow = () => {
   return (
-    <Select<string> onChange={(option) => console.log(option)}>
+    <Select<string> onSelect={(option) => console.log(option)}>
       <SelectTrigger>
         {({ selected, opened }) => (
           <div
@@ -426,5 +429,35 @@ export const MultiMaxToSelect = () => {
         ))}
       </MultiSelectContent>
     </MultiSelect>
+  );
+};
+
+export const WithContext = () => {
+  const [selected, setSelected] = useState<Option<string> | null>(null);
+  const [opened, setOpened] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log('own context selected', selected);
+  }, [selected]);
+
+  return (
+    <SelectContext.Provider
+      value={{ selected, setSelected: setSelected, opened, setOpened }}
+    >
+      <Select<string> onSelect={() => {}}>
+        <SelectTrigger>
+          {({ selected }) => (
+            <span>{selected?.label || 'Select an option'}</span>
+          )}
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectOption key={option.value} value={option} className="option">
+              {() => <div>{option.label}</div>}
+            </SelectOption>
+          ))}
+        </SelectContent>
+      </Select>
+    </SelectContext.Provider>
   );
 };

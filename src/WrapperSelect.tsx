@@ -3,22 +3,25 @@
 import React, {
   createContext,
   CSSProperties,
-  ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react';
+import {
+  ContentProps,
+  Option,
+  OptionProps,
+  SelectContextValue,
+  SelectProps,
+  TriggerProps,
+} from './types';
 
-interface SelectContextValue<T> {
-  selected: Option<T> | null;
-  setSelected: (option: Option<T>) => void;
-  opened: boolean;
-  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const SelectContext = createContext<SelectContextValue<any> | null>(null);
+export const SelectContext = createContext<SelectContextValue<any> | null>(
+  null
+);
 
 export const useSelectContext = <T,>(): SelectContextValue<T> => {
   const context = useContext(SelectContext);
@@ -28,24 +31,9 @@ export const useSelectContext = <T,>(): SelectContextValue<T> => {
   return context;
 };
 
-export interface SelectProps<T> {
-  value?: Option<T>;
-  onChange?: (option: Option<T>) => void;
-  children: ReactNode;
-  className?: string;
-  wrapperClassName?: string;
-  style?: CSSProperties;
-  wrapperStyle?: CSSProperties;
-}
-
-export interface Option<T> {
-  label: string;
-  value: T;
-}
-
 export const Select = <T,>({
   value,
-  onChange,
+  onSelect,
   children,
   className,
   wrapperClassName,
@@ -53,11 +41,61 @@ export const Select = <T,>({
   wrapperStyle,
   ...rest
 }: SelectProps<T>) => {
+  const existingContext = useContext(SelectContext);
+
+  if (existingContext) {
+    return (
+      <SelectContainer
+        context={existingContext}
+        children={children}
+        className={className}
+        wrapperClassName={wrapperClassName}
+        style={style}
+        wrapperStyle={wrapperStyle}
+        {...rest}
+      />
+    );
+  }
+
   const [selected, setSelected] = useState<Option<T> | null>(value || null);
   const [opened, setOpened] = useState(false);
+
+  const contextValue: SelectContextValue<T> = {
+    selected,
+    setSelected,
+    opened,
+    setOpened,
+  };
+
+  return (
+    <SelectContext.Provider value={contextValue}>
+      <SelectContainer
+        context={contextValue}
+        children={children}
+        className={className}
+        wrapperClassName={wrapperClassName}
+        style={style}
+        wrapperStyle={wrapperStyle}
+        {...rest}
+      />
+    </SelectContext.Provider>
+  );
+};
+
+const SelectContainer = <T,>({
+  context,
+  children,
+  className,
+  wrapperClassName,
+  style,
+  wrapperStyle,
+  ...rest
+}: Omit<SelectProps<T>, 'onSelect'> & { context: SelectContextValue<T> }) => {
+  const { opened, setOpened } = context;
   const [minWidth, setMinWidth] = useState<number>(0);
   const [minHeight, setMinHeight] = useState<string>('0');
   const root = useRef<HTMLDivElement>(null);
+
   const defaultSelectStyle: CSSProperties = {
     position: 'absolute',
     maxHeight: opened ? 300 : 46,
@@ -84,6 +122,15 @@ export const Select = <T,>({
     position: 'relative',
   };
 
+  const handleClickOutside = useCallback(
+    (event: MouseEvent) => {
+      if (root.current && !root.current.contains(event.target as Node)) {
+        setOpened(false);
+      }
+    },
+    [setOpened]
+  );
+
   useLayoutEffect(() => {
     if (root.current) {
       const rootWidth = root.current.offsetWidth;
@@ -93,15 +140,6 @@ export const Select = <T,>({
   }, [root.current]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (root.current && !root.current.contains(target)) {
-        event.preventDefault();
-        event.stopPropagation();
-        setOpened(false);
-      }
-    };
-
     if (opened) {
       document.addEventListener('click', handleClickOutside);
     }
@@ -109,64 +147,30 @@ export const Select = <T,>({
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [opened, root]);
-
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (opened && event.key == 'Escape') {
-        event.preventDefault();
-        event.stopPropagation();
-        setOpened(false);
-      }
-    };
-
-    if (opened) {
-      document.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
   }, [opened]);
 
-  const handleSelect = (option: Option<T>) => {
-    setSelected(option);
-    onChange?.(option);
-    setOpened(false);
-  };
-
   return (
-    <SelectContext.Provider
-      value={{ selected, setSelected: handleSelect, opened, setOpened }}
+    <div
+      style={{ ...defaultWrapperStyle, ...wrapperStyle }}
+      className={wrapperClassName}
+      role="combobox"
+      aria-haspopup="listbox"
+      aria-expanded={opened}
+      aria-controls="select-list"
+      {...rest}
     >
       <div
-        style={{ ...defaultWrapperStyle, ...wrapperStyle }}
-        className={wrapperClassName!}
-        role="combobox"
-        aria-haspopup="listbox"
-        aria-expanded={opened}
-        aria-controls="select-list"
-        {...rest}
+        ref={root}
+        data-opened={opened}
+        tabIndex={1}
+        style={{ ...defaultSelectStyle, ...style }}
+        className={className}
       >
-        <div
-          ref={root}
-          data-opened={opened}
-          tabIndex={1}
-          style={{ ...defaultSelectStyle, ...style }}
-          className={className!}
-        >
-          {children}
-        </div>
+        {children}
       </div>
-    </SelectContext.Provider>
+    </div>
   );
 };
-
-interface TriggerProps {
-  children: (context: { selected: any; opened: boolean }) => ReactNode;
-  className?: string;
-  style?: CSSProperties;
-}
 
 export const SelectTrigger = ({
   children,
@@ -222,20 +226,12 @@ export const SelectTrigger = ({
   );
 };
 
-interface ContentProps {
-  children: ReactNode;
-  className?: string;
-  style?: CSSProperties;
-}
-
 export const SelectContent = ({
   children,
   className,
   style,
   ...rest
 }: ContentProps) => {
-  const { opened } = useSelectContext();
-  const rootRef = useRef<HTMLDivElement | null>(null);
   const optionsStyle: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
@@ -245,25 +241,9 @@ export const SelectContent = ({
     overflowY: 'auto',
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        event.preventDefault();
-      }
-    };
-
-    if (opened) {
-      document.addEventListener('click', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [opened]);
-
   return (
     <div
       id="select-list"
-      ref={rootRef}
       style={{ ...optionsStyle, ...style }}
       className={className!}
       role="listbox"
@@ -273,13 +253,6 @@ export const SelectContent = ({
     </div>
   );
 };
-
-interface OptionProps<T> {
-  value: Option<T>;
-  children: (context: Option<T> | null) => ReactNode;
-  className?: string;
-  style?: CSSProperties;
-}
 
 export const SelectOption = <T,>({
   value,
@@ -318,6 +291,7 @@ export const SelectOption = <T,>({
     <div
       onClick={() => {
         setSelected(value);
+        setOpened(false);
       }}
       tabIndex={1}
       style={{
