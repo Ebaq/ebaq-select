@@ -4,6 +4,8 @@ This library built like shadcn, so you can customize your select as you want.
 
 ## Examples
 
+### Default
+
 ```typescript
 const options = [
 	{ label: 'Option 1', value: 'option1' },
@@ -33,7 +35,7 @@ export const Example = () => {
 }
 ```
 
-With predefined value:
+### With predefined value:
 
 ```typescript
 <Select value={options[0]} onChange={selected => console.log('Selected:', selected)}>
@@ -50,6 +52,40 @@ With predefined value:
 		))}
 	</SelectContent>
 </Select>
+```
+
+### With own context
+
+```
+export const WithContext = () => {
+  const [selected, setSelected] = useState<Option<string> | null>(null);
+  const [opened, setOpened] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log('own context selected', selected);
+  }, [selected]);
+
+  return (
+    <SelectContext.Provider
+      value={{ selected, setSelected: setSelected, opened, setOpened }}
+    >
+      <Select<string> onSelect={() => {}}>
+        <SelectTrigger>
+          {({ selected }) => (
+            <span>{selected?.label || 'Select an option'}</span>
+          )}
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectOption key={option.value} value={option} className="option">
+              {() => <div>{option.label}</div>}
+            </SelectOption>
+          ))}
+        </SelectContent>
+      </Select>
+    </SelectContext.Provider>
+  );
+};
 ```
 
 ### Styles
