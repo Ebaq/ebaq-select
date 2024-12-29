@@ -42,7 +42,11 @@
     "fancy",
     "custom",
     "customize",
-    "multiselect"
+    "customizable",
+    "modular",
+    "multiselect",
+    "multi",
+    "virtualized"
   ],
   "author": "ebaq",
   "module": "dist/fancy-select.esm.js",

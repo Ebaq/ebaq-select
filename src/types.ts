@@ -38,6 +38,8 @@ export interface ContentProps {
   children: ReactNode;
   className?: string;
   style?: CSSProperties;
+  searchStyle?: CSSProperties;
+  searchClassName?: string;
 }
 
 export declare const SelectContent: FC<ContentProps>;
@@ -48,6 +50,9 @@ export interface SelectContextValue<T> {
   opened: boolean;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
   onSelect?: (option: Option<T>) => void;
+  searchable?: boolean;
+  search?: string;
+  setSearch?: (value: string) => void;
 }
 
 export interface MultiSelectProps<T> {

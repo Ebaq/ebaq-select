@@ -1,6 +1,6 @@
 # ebaq-select
 
-This library built like shadcn, so you can customize your select as you want.
+Modular easy to customize select.
 
 ## Examples
 
@@ -60,27 +60,56 @@ export const Example = () => {
 export const WithContext = () => {
   const [selected, setSelected] = useState<Option<string> | null>(null);
   const [opened, setOpened] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>('');
 
   useEffect(() => {
+    //This will work
     console.log('own context selected', selected);
   }, [selected]);
 
+  const onSelect = (option: Option<string>) => {
+    // This also will work
+    console.log(option.value);
+  };
+
   return (
     <SelectContext.Provider
-      value={{ selected, setSelected: setSelected, opened, setOpened }}
+      value={{
+        selected,
+        setSelected: setSelected,
+        opened,
+        setOpened,
+        onSelect,
+        searchable: true,
+        search,
+        setSearch,
+      }}
     >
-      <Select<string> onSelect={() => {}}>
+      <Select<string>
+        onSelect={() => {
+          // This won't work
+          console.log('on Select');
+        }}
+      >
         <SelectTrigger>
           {({ selected }) => (
             <span>{selected?.label || 'Select an option'}</span>
           )}
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
-            <SelectOption key={option.value} value={option} className="option">
-              {() => <div>{option.label}</div>}
-            </SelectOption>
-          ))}
+          {searchOptions
+            .filter((el) =>
+              el.label.toLowerCase().includes(search.toLowerCase())
+            )
+            .map((option) => (
+              <SelectOption
+                key={option.value}
+                value={option}
+                className="option"
+              >
+                {() => <div>{option.label}</div>}
+              </SelectOption>
+            ))}
         </SelectContent>
       </Select>
     </SelectContext.Provider>
@@ -94,7 +123,7 @@ You can customize options with 2 data attributes:
 
 [data-selected] means that this option is selected
 
-[data-hasSelected] means that any option is selected
+[data-hasselected] means that any option is selected
 
 With that you can style not selected and selected options like this:
 
@@ -110,7 +139,7 @@ With that you can style not selected and selected options like this:
 }
 ```
 
-To you this, you need to give a class to <SelectOption>
+To use this you need to give a class to <SelectOption>
 
 Select width adaptive to its content and height is static. This example:
 
@@ -260,4 +289,136 @@ export const Multi = () => {
 };
 ```
 
+### Unstable
+
+Virtualized select available but not stable yet. Example:
+
+```
+export const VirtualizedBeta = () => {
+  const [selectedOption, setSelectedOption] = useState<Option<number>>();
+
+  const handleSelect = (option: Option<number>) => {
+    setSelectedOption(option);
+  };
+  useEffect(() => {
+    //This will work
+    console.log('own context selected', selectedOption);
+  }, [selectedOption]);
+
+  const options = Array.from({ length: 1000 }, (_, i) => ({
+    label: `Option ${i + 1}`,
+    value: i + 1,
+  }));
+
+  const renderCustomOption = (
+    option: Option<number>,
+    isSelected: boolean,
+    onClick: () => void
+  ) => (
+    <div
+      onClick={onClick}
+      style={{
+        padding: '10px',
+        background: isSelected ? 'lightgreen' : 'white',
+        cursor: 'pointer',
+        backgroundColor: '#000',
+        borderBottom: '1px solid #ddd',
+      }}
+    >
+      <strong>{option.label}</strong>
+    </div>
+  );
+
+  return (
+    <VirtualizedSelect
+      value={selectedOption}
+      onSelect={handleSelect}
+      options={options}
+      height={300}
+      style={{
+        minWidth: 300,
+      }}
+      itemHeight={45}
+      renderOption={renderCustomOption}
+    >
+      <VirtualizedTrigger
+        style={{
+          minWidth: 300,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid #fefefe',
+          borderRadius: 8,
+          padding: '10px 0',
+        }}
+      >
+        {({ selected }) => <span>{selected?.label || 'Select an option'}</span>}
+      </VirtualizedTrigger>
+    </VirtualizedSelect>
+  );
+};
+```
+
 You can look closer and test it in storybook.
+Open to critic and contributing!
+
+## API Reference
+
+#### SelectContext Props
+
+| Prop  | Type   | Description                                  |
+| :---- | :----- | :------------------------------------------- |
+| value | Object | **Required**. Props for context to work with |
+
+#### Value Props
+
+| Prop        | Type      | Description                      |
+| :---------- | :-------- | :------------------------------- |
+| selected    | Option<T> | **Required**. Selected value     |
+| setSelected | func      | **Required**. Set selected value |
+| opened      | boolean   | **Required**. Is select opened   |
+| onSelect    | func      | Action when selecting option     |
+| searchable  | boolean   | Is search input enabled          |
+| search      | string    | Search string                    |
+| setSearch   | func      | Set search string when typing    |
+
+#### Select Props
+
+| Parameter        | Type      | Description                     |
+| :--------------- | :-------- | :------------------------------ |
+| children         | ReactNode | SelectTrigger and SelectContent |
+| value            | Option<T> | Predefined value if need        |
+| onSelect         | func      | Action when selecting option    |
+| className        | string    | Classes for select              |
+| wrapperClassName | string    | Classes for select wrapper      |
+| style            | string    | Style for select                |
+| wrapperStyle     | string    | Style for select wrapper        |
+
+#### SelectTrigger Props
+
+| Parameter | Type   | Description                                |
+| :-------- | :----- | :----------------------------------------- |
+| children  | func   | Customizable placeholder, provides context |
+| className | string | Classes for placeholder                    |
+| style     | string | Style for placeholder                      |
+
+#### SelectContent Props
+
+| Parameter       | Type      | Description                           |
+| :-------------- | :-------- | :------------------------------------ |
+| children        | ReactNode | Options                               |
+| className       | string    | Classes for options wrapper           |
+| style           | string    | Style for options wrapper             |
+| searchStyle     | string    | Style for search input if enabled     |
+| searchClassName | string    | Classname for search input if enabled |
+
+#### Option Props
+
+| Parameter | Type      | Description                                      |
+| :-------- | :-------- | :----------------------------------------------- |
+| value     | Option<T> | Value of provided option to handle select e.t.c. |
+| children  | func      | Custom option view with provided context         |
+| style     | string    | Style for option                                 |
+| className | string    | Classname for option                             |
+
+TODO: MultiSelect and VirtualizedSelect API Reference

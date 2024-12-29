@@ -231,8 +231,11 @@ export const SelectContent = ({
   children,
   className,
   style,
+  searchStyle,
+  searchClassName,
   ...rest
 }: ContentProps) => {
+  const { searchable, search, setSearch } = useSelectContext();
   const optionsStyle: CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
@@ -250,6 +253,28 @@ export const SelectContent = ({
       role="listbox"
       {...rest}
     >
+      {searchable && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <input
+            type="text"
+            style={{
+              width: '90%',
+              ...searchStyle,
+            }}
+            className={searchClassName!}
+            value={search}
+            onChange={(e) => {
+              setSearch?.(e.target.value);
+            }}
+          />
+        </div>
+      )}
       {children}
     </div>
   );

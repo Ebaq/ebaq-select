@@ -15,8 +15,9 @@ import {
   MultiSelectOption,
   MultiSelectTrigger,
 } from '../MultiSelect';
+import { VirtualizedSelect, VirtualizedTrigger } from '../VirtualizedSelect';
 import { ChevronDownSVG } from './ChevronDown';
-// import './Select.css';
+import './Select.css';
 export default {
   title: 'Components/Select',
   component: Select,
@@ -26,6 +27,21 @@ const options = [
   { label: 'Option 2', value: 'option2' },
   { label: 'Option 3', value: 'option3' },
   { label: 'Option 4', value: 'option4' },
+  // { label: 'Option 5', value: 'option5' },
+  // { label: 'Option 6', value: 'option6' },
+  // { label: 'Option 7', value: 'option7' },
+  // { label: 'Option 8', value: 'option8' },
+  // { label: 'Option 9', value: 'option9' },
+  // { label: 'Option 10', value: 'option10' },
+  // { label: 'Option 11', value: 'option11' },
+  // { label: 'Option 12', value: 'option12' },
+];
+
+const searchOptions = [
+  { label: 'qwer', value: 'option1' },
+  { label: 'tyui', value: 'option2' },
+  { label: 'asdf', value: 'option3' },
+  { label: 'ghjk', value: 'option4' },
   // { label: 'Option 5', value: 'option5' },
   // { label: 'Option 6', value: 'option6' },
   // { label: 'Option 7', value: 'option7' },
@@ -435,6 +451,7 @@ export const MultiMaxToSelect = () => {
 export const WithContext = () => {
   const [selected, setSelected] = useState<Option<string> | null>(null);
   const [opened, setOpened] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>('');
 
   useEffect(() => {
     //This will work
@@ -454,6 +471,9 @@ export const WithContext = () => {
         opened,
         setOpened,
         onSelect,
+        searchable: true,
+        search,
+        setSearch,
       }}
     >
       <Select<string>
@@ -468,13 +488,85 @@ export const WithContext = () => {
           )}
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
-            <SelectOption key={option.value} value={option} className="option">
-              {() => <div>{option.label}</div>}
-            </SelectOption>
-          ))}
+          {searchOptions
+            .filter((el) =>
+              el.label.toLowerCase().includes(search.toLowerCase())
+            )
+            .map((option) => (
+              <SelectOption
+                key={option.value}
+                value={option}
+                className="option"
+              >
+                {() => <div>{option.label}</div>}
+              </SelectOption>
+            ))}
         </SelectContent>
       </Select>
     </SelectContext.Provider>
+  );
+};
+
+export const VirtualizedBeta = () => {
+  const [selectedOption, setSelectedOption] = useState<Option<number>>();
+
+  const handleSelect = (option: Option<number>) => {
+    setSelectedOption(option);
+  };
+  useEffect(() => {
+    //This will work
+    console.log('own context selected', selectedOption);
+  }, [selectedOption]);
+
+  const options = Array.from({ length: 1000 }, (_, i) => ({
+    label: `Option ${i + 1}`,
+    value: i + 1,
+  }));
+
+  const renderCustomOption = (
+    option: Option<number>,
+    isSelected: boolean,
+    onClick: () => void
+  ) => (
+    <div
+      onClick={onClick}
+      style={{
+        padding: '10px',
+        background: isSelected ? 'lightgreen' : 'white',
+        cursor: 'pointer',
+        backgroundColor: '#000',
+        borderBottom: '1px solid #ddd',
+      }}
+    >
+      <strong>{option.label}</strong>
+    </div>
+  );
+
+  return (
+    <VirtualizedSelect
+      value={selectedOption}
+      onSelect={handleSelect}
+      options={options}
+      height={300}
+      style={{
+        minWidth: 300,
+      }}
+      itemHeight={45}
+      renderOption={renderCustomOption}
+    >
+      <VirtualizedTrigger
+        style={{
+          minWidth: 300,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid #fefefe',
+          borderRadius: 8,
+          padding: '10px 0',
+        }}
+      >
+        {({ selected }) => <span>{selected?.label || 'Select an option'}</span>}
+      </VirtualizedTrigger>
+    </VirtualizedSelect>
   );
 };
