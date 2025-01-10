@@ -16,7 +16,7 @@ export const Example = () => {
 
 	return (
 		<Select
-			onChange={selected => console.log('Selected:', selected)}
+			onSelect={selected => console.log('Selected:', selected)}
 		>
 			<SelectTrigger className={'selected'}>
 				{({ selected }: { selected: Option<string> }) => (
@@ -38,7 +38,7 @@ export const Example = () => {
 ### With predefined value:
 
 ```typescript
-<Select value={options[0]} onChange={selected => console.log('Selected:', selected)}>
+<Select value={options[0]} onSelect={selected => console.log('Selected:', selected)}>
 	<SelectTrigger className={'selected'}>
 		{({ selected }: { selected: Option<string> }) => (
 			<span>{selected?.label || 'Choose an option'}</span>
@@ -194,7 +194,7 @@ const options = [
 		textWrap: 'wrap',
 		minHeight: 60,
 	}}
-	onChange={selected => console.log('Selected:', selected)}
+	onSelect={selected => console.log('Selected:', selected)}
 >
 	<SelectTrigger
 		className={'selected'}
@@ -228,7 +228,7 @@ Supports Multielect, example:
 export const Multi = () => {
   return (
     <MultiSelect<string>
-      onChange={(option) => console.log(option)}
+      onSelect={(option) => console.log(option)}
       style={{
         width: 200,
       }}
